@@ -1,3 +1,3 @@
 node_modules
-./backend/config/firebase-service-account.json
-.evn
+backend/config/firebase-service-account.json
+.env
