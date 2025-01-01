@@ -4,14 +4,12 @@ const dotenv = require('dotenv');
 const connectDB = require('./db'); // MongoDB connection function
 const userRoutes = require('./routes/userRoutes'); // User routes
 const jwt = require('jsonwebtoken');
+const blogRoutes = require('./routes/blogRoutes'); // Import blog routes
 
 require('dotenv').config();
 
 // Load environment variables
 dotenv.config();
-
-// Initialize Firebase Admin (optional, adjust path if needed)
-// const admin = require('./config/firebase-admin');
 
 // Connect to MongoDB
 connectDB();
@@ -35,6 +33,12 @@ app.get('/', (req, res) => {
 
 // User routes
 app.use('/users', userRoutes);
+
+// Blog Routes
+app.use('/blogs', blogRoutes);
+
+// Static file serving for uploaded files
+app.use('/uploads', express.static('uploads'));
 
 // Start server
 app.listen(PORT, () => {
