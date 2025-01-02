@@ -14,14 +14,14 @@ const BlogList = () => {
         return response.json();
       })
       .then((data) => {
-        console.log("Fetched blogs:", data); // Log blogs to inspect `imageUrl`
-        setBlogs(data); // Set the fetched blogs into the state
-        setLoading(false); // Set loading to false after data fetch
+        console.log("Fetched blogs:", data);
+        setBlogs(data);
+        setLoading(false);
       })
       .catch((error) => {
         console.error("Error fetching blogs:", error);
-        setError(error.message); // Set the error message
-        setLoading(false); // Set loading to false even on error
+        setError(error.message);
+        setLoading(false);
       });
   }, []);
 
@@ -47,6 +47,8 @@ const BlogList = () => {
                 border: "1px solid #ddd",
                 padding: "10px",
                 margin: "10px",
+                borderRadius: "5px",
+                backgroundColor: "#f9f9f9",
               }}
             >
               <h2>{blog.title}</h2>
@@ -59,13 +61,14 @@ const BlogList = () => {
                     width: "100%",
                     maxHeight: "300px",
                     objectFit: "cover",
+                    marginBottom: "10px",
                   }}
                 />
               ) : (
-                <p>No image for this blog post.</p>
+                <p style={{ color: "#888" }}>No image for this blog post.</p>
               )}
               <small>
-                Author: {blog.author?.name || "Unknown Author"}
+                <strong>Author:</strong> {blog.author?.name || "Unknown Author"}
               </small>
             </div>
           ))}
