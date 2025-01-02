@@ -1,34 +1,45 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken'); // For creating tokens
+const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { authenticate } = require('../middleware/authMiddleware');
+const mongoose = require('mongoose');
 
 const router = express.Router();
 
 // Login Route
 router.post('/login', async (req, res) => {
-  const { email, password } = req.body;
+  const { emailOrUsername, password } = req.body;
 
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({
+      $or: [{ email: emailOrUsername }, { username: emailOrUsername }],
+    });
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Compare the provided password with the stored hashed password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // Generate a Firebase-compatible token
     const token = jwt.sign(
-      { uid: user._id, email: user.email },
-      process.env.JWT_SECRET, // Use a secure secret
-      { expiresIn: '1h' } // Token expires in 1 hour
+      { id: user._id, email: user.email, username: user.username },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
     );
 
-    res.status(200).json({ token, user: { id: user._id, name: user.name, email: user.email } });
+    res.status(200).json({
+      token,
+      user: {
+        id: user._id,
+        username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+      },
+    });
   } catch (error) {
     console.error('Error during login:', error.message);
     res.status(500).json({ message: 'Internal Server Error', error: error.message });
@@ -37,36 +48,53 @@ router.post('/login', async (req, res) => {
 
 // Register a new user
 router.post('/register', async (req, res) => {
-  const { name, email, password } = req.body;
+  const { firstName, lastName, username, email, password } = req.body;
 
   try {
-    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create a new user
-    const newUser = await User.create({ name, email, password: hashedPassword });
+    const newUser = await User.create({
+      firstName,
+      lastName,
+      username,
+      email,
+      password: hashedPassword,
+    });
 
     res.status(201).json({
       id: newUser._id,
-      name: newUser.name,
+      username: newUser.username,
+      firstName: newUser.firstName,
+      lastName: newUser.lastName,
       email: newUser.email,
     });
   } catch (error) {
-    console.error('Error during user registration:', error.message);
+    console.error('Error during registration:', error.message);
     if (error.code === 11000) {
-      res.status(400).json({ message: 'Email already exists' });
-    } else if (error.name === 'ValidationError') {
-      res.status(400).json({ message: 'Validation Error', details: error.errors });
+      res.status(400).json({ message: 'Email or Username already exists' });
     } else {
       res.status(500).json({ message: 'Internal Server Error', error: error.message });
     }
   }
 });
 
+// Fetch user details
+router.get('/me', authenticate, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json(user);
+  } catch (error) {
+    console.error('Error fetching user details:', error.message);
+    res.status(500).json({ message: 'Internal Server Error', error: error.message });
+  }
+});
+
 // Get all users
 router.get('/', async (req, res) => {
   try {
-    const users = await User.find().select('-password'); // Exclude passwords
+    const users = await User.find().select('-password');
     res.json(users);
   } catch (error) {
     console.error('Error fetching users:', error.message);
@@ -75,8 +103,6 @@ router.get('/', async (req, res) => {
 });
 
 // Get a single user by ID
-const mongoose = require('mongoose'); // Ensure this is at the top of the file
-
 router.get('/:id', async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
     return res.status(400).json({ message: 'Invalid user ID' });
@@ -95,7 +121,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Delete a user by ID
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authenticate, async (req, res) => {
   try {
     const user = await User.findByIdAndDelete(req.params.id);
     if (!user) {

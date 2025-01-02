@@ -5,7 +5,7 @@ const fs = require('fs');
 // Ensure 'uploads/' directory exists
 const uploadDir = path.join(__dirname, '..', 'uploads');
 if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
+  fs.mkdirSync(uploadDir, { recursive: true }); // Ensure directory is created recursively
 }
 
 // Set storage engine
@@ -14,7 +14,9 @@ const storage = multer.diskStorage({
     cb(null, uploadDir); // Files will be saved in the 'uploads' directory
   },
   filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`); // Rename file to include a timestamp
+    // Sanitize the file name to remove problematic characters
+    const sanitizedFileName = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_');
+    cb(null, `${Date.now()}-${sanitizedFileName}`); // Rename file to include a timestamp
   },
 });
 
@@ -29,6 +31,19 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
+// Error handling for multer
+const handleMulterErrors = (err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    // Handle Multer-specific errors
+    res.status(400).json({ message: `Multer error: ${err.message}` });
+  } else if (err) {
+    // Handle other errors
+    res.status(400).json({ message: `File upload error: ${err.message}` });
+  } else {
+    next();
+  }
+};
+
 // Initialize multer
 const upload = multer({
   storage,
@@ -36,4 +51,7 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 }, // Limit file size to 5MB
 });
 
-module.exports = upload;
+module.exports = {
+  upload,
+  handleMulterErrors,
+};
