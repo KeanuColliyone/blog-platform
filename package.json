@@ -23,7 +23,8 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-markdown": "^9.0.3",
-    "react-router-dom": "^6.28.1"
+    "react-router-dom": "^6.28.1",
+    "xml2js": "^0.6.2"
   },
   "devDependencies": {
     "gh-pages": "^6.3.0",
