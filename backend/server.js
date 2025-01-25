@@ -1,3 +1,4 @@
+// Import required modules
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
@@ -9,25 +10,37 @@ const blogRoutes = require('./routes/blogRoutes'); // Blog routes
 dotenv.config();
 
 // Connect to MongoDB
-connectDB();
+connectDB()
+  .then(() => console.log('Connected to MongoDB successfully'))
+  .catch((err) => {
+    console.error('Failed to connect to MongoDB:', err.message);
+    process.exit(1); // Exit the process if the database connection fails
+  });
 
 // Create an Express app
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors({
-  origin: 'https://keanucolliyone.github.io/blog-platform/',}));
-app.use(express.json());
-app.use('/uploads', express.static('uploads'));
+app.use(
+  cors({
+    origin: 'https://keanucolliyone.github.io/blog-platform/',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Restrict allowed HTTP methods
+    credentials: true, // Enable credentials for CORS
+  })
+);
+app.use(express.json()); // Parse JSON request bodies
+app.use('/uploads', express.static('uploads')); // Serve static files from "uploads"
+
+// Request logger middleware
 app.use((req, res, next) => {
-  console.log(`Incoming request: ${req.method} ${req.url}`);
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
   next();
 });
 
-// Basic route
+// Root route
 app.get('/', (req, res) => {
-  res.send('Backend is running!');
+  res.status(200).send('Backend is running!');
 });
 
 // User routes
@@ -36,9 +49,6 @@ app.use('/users', userRoutes);
 // Blog routes
 app.use('/blogs', blogRoutes);
 
-// Static file serving for uploaded files
-app.use('/uploads', express.static('uploads'));
-
 // 404 handler for unmatched routes
 app.use((req, res) => {
   res.status(404).json({ message: 'Route not found' });
@@ -46,8 +56,11 @@ app.use((req, res) => {
 
 // Global error handler
 app.use((err, req, res, next) => {
-  console.error('Error:', err.message);
-  res.status(500).json({ message: 'Internal Server Error', error: err.message });
+  console.error(`[${new Date().toISOString()}] Error:`, err.message);
+  res.status(500).json({
+    message: 'Internal Server Error',
+    error: err.message,
+  });
 });
 
 // Start server
