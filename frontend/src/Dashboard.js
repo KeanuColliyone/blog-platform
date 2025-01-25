@@ -77,7 +77,7 @@ const Dashboard = () => {
     <div className="dashboard-container">
       {/* Navbar */}
       <nav className="dashboard-navbar">
-        <h2>My Dashboard</h2>
+        <h2>Dashboard</h2>
         <button onClick={() => navigate('/')} className="dashboard-home-button">
           Home
         </button>

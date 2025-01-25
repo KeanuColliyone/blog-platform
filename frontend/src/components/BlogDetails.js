@@ -45,7 +45,7 @@ const BlogDetails = () => {
     <div className="blog-details-container">
       {/* Navbar */}
       <header className="navbar">
-        <h1 className="navbar-logo">EXTRA</h1>
+        <h1 className="navbar-logo">BLOGTAKU</h1>
         <button className="navbar-button" onClick={() => navigate('/')}>
           Back to Homepage
         </button>

@@ -39,7 +39,7 @@ const Homepage = () => {
   return (
     <div className="homepage-container">
       <header className="homepage-header">
-        <h1 className="homepage-logo">EXTRA</h1>
+        <h1 className="homepage-logo">BLOGTAKU</h1>
         <nav className="homepage-nav">
           <ul className="nav-links">
             <li>
