@@ -26,10 +26,12 @@ const Homepage = () => {
     fetch(`${API_BASE_URL}/blogs`)
       .then((response) => response.json())
       .then((data) => {
-        if (Array.isArray(data)) {
-          setBlogs(data);
+        console.log('Blogs API Response:', data); // Debugging API response
+        if (data && Array.isArray(data.data)) {
+          setBlogs(data.data); // Handle expected structure
         } else {
           console.error('Blogs API response is not an array:', data);
+          setBlogs([]); // Fallback to an empty array
         }
       })
       .catch((error) => console.error('Error fetching blogs:', error.message));
@@ -39,8 +41,8 @@ const Homepage = () => {
       .then((response) => response.json())
       .then((data) => {
         console.log('Anime News API Response:', data); // Debugging API response
-        if (Array.isArray(data)) {
-          const validatedNews = data.map((newsItem) => ({
+        if (data && Array.isArray(data.news)) {
+          const validatedNews = data.news.map((newsItem) => ({
             title: typeof newsItem.title === 'string' ? newsItem.title : 'Untitled',
             description:
               typeof newsItem.description === 'string'
@@ -51,6 +53,7 @@ const Homepage = () => {
           setAnimeNews(validatedNews);
         } else {
           console.error('Invalid anime news format:', data);
+          setAnimeNews([]); // Fallback to an empty array
         }
       })
       .catch((error) => console.error('Error fetching anime news:', error.message));
