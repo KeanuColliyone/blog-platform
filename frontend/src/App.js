@@ -6,6 +6,7 @@ import Dashboard from './Dashboard';
 import BlogList from './components/BlogList';
 import Homepage from './components/Homepage'; // Ensure the Homepage file is created in the right path
 import BlogEditor from './components/BlogEditor'; // Ensure the BlogEditor file is created in the right path
+import BlogDetails from './components/BlogDetails';
 
 function App() {
   const handleSubmitBlog = async (formData, blogId) => {
@@ -49,6 +50,9 @@ function App() {
           path="/blogs/editor"
           element={<BlogEditor onSubmit={handleSubmitBlog} />}
         />
+        <Route
+        path="/blog/:id"
+        element={<BlogDetails />} /> {/* Blog details route */}
         <Route
           path="/blogs/editor/:blogId"
           element={<BlogEditor onSubmit={handleSubmitBlog} />}

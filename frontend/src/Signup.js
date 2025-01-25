@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import './stylings/Signup.css'; // Import the CSS file
 
 const Signup = () => {
-  const [firstName, setFirstName] = useState(''); // First name field
-  const [lastName, setLastName] = useState(''); // Last name field
-  const [username, setUsername] = useState(''); // Username field
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const navigate = useNavigate(); // To navigate after successful signup or to login
+  const navigate = useNavigate();
 
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -19,7 +20,6 @@ const Signup = () => {
     }
 
     try {
-      // Send signup request to the backend
       const response = await fetch('http://localhost:5000/users/register', {
         method: 'POST',
         headers: {
@@ -32,7 +32,7 @@ const Signup = () => {
 
       if (response.ok) {
         alert('Signup successful');
-        navigate('/login'); // Redirect to login after successful signup
+        navigate('/login');
       } else {
         alert(`Signup failed: ${data.message}`);
       }
@@ -43,15 +43,16 @@ const Signup = () => {
   };
 
   return (
-    <div>
-      <form onSubmit={handleSignup}>
-        <h2>Signup</h2>
+    <div className="signup-container">
+      <form className="signup-form" onSubmit={handleSignup}>
+        <h2 className="signup-title">Sign up</h2>
         <input
           type="text"
           placeholder="First Name"
           value={firstName}
           onChange={(e) => setFirstName(e.target.value)}
           required
+          className="signup-input"
         />
         <input
           type="text"
@@ -59,6 +60,7 @@ const Signup = () => {
           value={lastName}
           onChange={(e) => setLastName(e.target.value)}
           required
+          className="signup-input"
         />
         <input
           type="text"
@@ -66,6 +68,7 @@ const Signup = () => {
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           required
+          className="signup-input"
         />
         <input
           type="email"
@@ -73,6 +76,7 @@ const Signup = () => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
+          className="signup-input"
         />
         <input
           type="password"
@@ -80,6 +84,7 @@ const Signup = () => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
+          className="signup-input"
         />
         <input
           type="password"
@@ -87,12 +92,17 @@ const Signup = () => {
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           required
+          className="signup-input"
         />
-        <button type="submit">Signup</button>
+        <button type="submit" className="signup-button">
+          Sign up
+        </button>
       </form>
-      <div style={{ marginTop: '20px' }}>
+      <div className="signup-footer">
         <p>Already have an account?</p>
-        <button onClick={() => navigate('/login')}>Go to Login</button>
+        <button onClick={() => navigate('/login')} className="login-button">
+          Go to Login
+        </button>
       </div>
     </div>
   );

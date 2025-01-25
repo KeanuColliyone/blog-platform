@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import './stylings/Dashboard.css';
 
 const Dashboard = () => {
   const [blogs, setBlogs] = useState([]);
-  const [loading, setLoading] = useState(true); // Add a loading state
-  const [error, setError] = useState(null); // Add an error state
-  const token = localStorage.getItem('token'); // Retrieve the token dynamically
+  const [loading, setLoading] = useState(true); // Loading state
+  const [error, setError] = useState(null); // Error state
+  const token = localStorage.getItem('token'); // Retrieve token
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -60,73 +61,63 @@ const Dashboard = () => {
   }
 
   return (
-    <div>
-      <h1>My Blog Posts</h1>
-      <button
-        onClick={() => navigate('/blogs/editor')}
-        style={{
-          marginBottom: '20px',
-          padding: '10px 20px',
-          backgroundColor: '#007BFF',
-          color: '#FFF',
-          border: 'none',
-          borderRadius: '5px',
-          cursor: 'pointer',
-        }}
-      >
-        Create New Blog Post
-      </button>
-      {blogs.length === 0 ? (
-        <div>No blog posts found.</div>
-      ) : (
-        blogs.map((blog) => (
-          <div
-            key={blog._id}
-            style={{
-              border: '1px solid #ddd',
-              padding: '10px',
-              margin: '10px',
-            }}
-          >
-            <h2>{blog.title}</h2>
-            <p>{blog.content}</p>
-            {blog.imageUrl && (
-              <img
-                src={blog.imageUrl}
-                alt="Blog"
-                style={{ width: '100%', maxHeight: '300px' }}
-              />
-            )}
-            <button
-              onClick={() => navigate(`/blogs/editor/${blog._id}`)}
-              style={{
-                marginRight: '10px',
-                padding: '5px 10px',
-                backgroundColor: '#28A745',
-                color: '#FFF',
-                border: 'none',
-                borderRadius: '5px',
-                cursor: 'pointer',
-              }}
-            >
-              Edit
-            </button>
-            <button
-              onClick={() => handleDelete(blog._id)}
-              style={{
-                padding: '5px 10px',
-                backgroundColor: '#DC3545',
-                color: '#FFF',
-                border: 'none',
-                borderRadius: '5px',
-                cursor: 'pointer',
-              }}
-            >
-              Delete
-            </button>
-          </div>
-        ))
-      )}
+    <div className="dashboard-container">
+      {/* Navbar */}
+      <nav className="dashboard-navbar">
+        <h2>My Dashboard</h2>
+        <button onClick={() => navigate('/')} className="dashboard-home-button">
+          Home
+        </button>
+      </nav>
+
+      {/* Blog Section */}
+      <main>
+        <h1 className="dashboard-title">My Blog Posts</h1>
+        <button
+          onClick={() => navigate('/blogs/editor')}
+          className="dashboard-create-button"
+        >
+          Create New Blog Post
+        </button>
+
+        <div className="dashboard-grid">
+          {blogs.map((blog) => (
+            <div key={blog._id} className="dashboard-blog-card">
+              <img src={blog.imageUrl} alt="Blog" className="dashboard-blog-image" />
+              <h2 className="dashboard-blog-title">{blog.title}</h2>
+              <p className="dashboard-blog-content">
+                {blog.content.length > 100 ? `${blog.content.slice(0, 100)}...` : blog.content}
+              </p>
+              <p className="dashboard-blog-author">By {blog.author?.username || 'Unknown'}</p>
+              <div className="dashboard-actions">
+                <button
+                  onClick={() => navigate(`/blogs/editor/${blog._id}`)}
+                  className="dashboard-edit-button"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(blog._id)}
+                  className="dashboard-delete-button"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="dashboard-footer">
+      <p>Follow Us:</p>
+      <div className="dashboard-social-links">
+        <a href="https://www.linkedin.com/in/kotzee-kenan-175ab4284" className="social-link" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        <a href="https://x.com/MrColliyone" className="social-link" target="_blank" rel="noopener noreferrer">Twitter</a>
+        <a href="https://www.facebook.com/keanu.kotzee" className="social-link" target="_blank" rel="noopener noreferrer">Facebook</a>
+        <a href="https://github.com/KeanuColliyone" className="social-link" target="_blank" rel="noopener noreferrer">GitHub</a>
+     </div>
+    </footer>
     </div>
   );
 };
