@@ -17,16 +17,22 @@ const Homepage = () => {
     // Fetch blogs
     fetch(`${API_BASE_URL}/blogs`)
       .then((response) => response.json())
-      .then((data) => setBlogs(data))
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setBlogs(data);
+        } else {
+          console.error('Invalid blogs data format:', data);
+        }
+      })
       .catch((error) => console.error('Error fetching blogs:', error.message));
 
     // Fetch anime news
     fetch(`${API_BASE_URL}/news/latest`)
       .then((response) => response.json())
       .then((data) => {
-        console.log('Anime News API Response:', data); // Debugging API response
+        console.log('Anime News API Response:', data);
         if (data && Array.isArray(data.news)) {
-          setAnimeNews(data.news); // Ensure "news" is the array field
+          setAnimeNews(data.news);
         } else {
           console.error('Invalid anime news format:', data);
         }
@@ -96,21 +102,21 @@ const Homepage = () => {
       {blogs.length > 0 ? (
         <section className="featured-blog">
           <img
-            src={blogs[0].imageUrl || '/path/to/default-image.jpg'}
-            alt={blogs[0].title}
+            src={blogs[0]?.imageUrl || '/path/to/default-image.jpg'}
+            alt={blogs[0]?.title || 'No Title'}
             className="featured-image"
-            onClick={() => handleBlogClick(blogs[0]._id)}
+            onClick={() => handleBlogClick(blogs[0]?._id)}
             style={{ cursor: 'pointer' }}
           />
           <div className="featured-content">
-            <h2 className="featured-title">{blogs[0].title}</h2>
+            <h2 className="featured-title">{blogs[0]?.title || 'No Title'}</h2>
             <p className="featured-author">
-              By {blogs[0].author?.username || 'Unknown'}
+              By {blogs[0]?.author?.username || 'Unknown'}
             </p>
             <p className="featured-text">
-              {blogs[0].content.length > 200
-                ? `${blogs[0].content.slice(0, 200)}...`
-                : blogs[0].content}
+              {typeof blogs[0]?.content === 'string' && blogs[0]?.content.length > 200
+                ? `${blogs[0]?.content.slice(0, 200)}...`
+                : blogs[0]?.content || 'No content available'}
             </p>
           </div>
         </section>
@@ -126,9 +132,9 @@ const Homepage = () => {
             {animeNews.map((news, index) => (
               <li key={index} className="anime-news-item">
                 <a href={news.url} target="_blank" rel="noopener noreferrer">
-                  {news.title}
+                  {news.title || 'No Title'}
                 </a>
-                <p>{news.description}</p>
+                <p>{news.description || 'No description available'}</p>
               </li>
             ))}
           </ul>
@@ -148,14 +154,14 @@ const Homepage = () => {
           >
             <img
               src={blog.imageUrl || '/path/to/default-image.jpg'}
-              alt={blog.title}
+              alt={blog.title || 'No Title'}
               className="homepage-blog-image"
             />
-            <h3 className="homepage-blog-title">{blog.title}</h3>
+            <h3 className="homepage-blog-title">{blog.title || 'No Title'}</h3>
             <p className="homepage-blog-content">
-              {blog.content.length > 100
+              {typeof blog.content === 'string' && blog.content.length > 100
                 ? `${blog.content.slice(0, 100)}...`
-                : blog.content}
+                : blog.content || 'No content available'}
             </p>
             <p className="homepage-blog-author">
               By {blog.author?.username || 'Unknown'}
