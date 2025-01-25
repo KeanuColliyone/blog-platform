@@ -54,7 +54,9 @@ app.get('/', (req, res) => {
 app.use('/users', userRoutes);
 
 // Blog routes
-app.use('/blogs', blogRoutes);
+app.use('/blogs', (req, res) => {
+  res.json({ message: 'Blogs data' });
+});
 
 // 404 handler for unmatched routes
 app.use((req, res) => {
