@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useParams, useNavigate } from 'react-router-dom';
-import MDEditor from '@uiw/react-md-editor'; // Markdown editor import
+import MDEditor from '@uiw/react-md-editor';
 import '../stylings/BlogEditor.css';
 
 const BlogEditor = ({ onSubmit }) => {
@@ -13,9 +13,15 @@ const BlogEditor = ({ onSubmit }) => {
   const [imagePreview, setImagePreview] = useState(null);
   const [error, setError] = useState(null);
 
+  // Dynamic API Base URL
+  const API_BASE_URL =
+    window.location.hostname !== 'localhost'
+      ? 'https://protected-stream-14951.herokuapp.com'
+      : 'http://localhost:5000';
+
   useEffect(() => {
     if (blogId) {
-      fetch(`http://localhost:5000/blogs/${blogId}`, {
+      fetch(`${API_BASE_URL}/blogs/${blogId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
@@ -36,11 +42,17 @@ const BlogEditor = ({ onSubmit }) => {
           setError('Failed to load blog details.');
         });
     }
-  }, [blogId]);
+  }, [blogId, API_BASE_URL]);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      // Validate file type and size (e.g., max 2MB)
+      if (!file.type.startsWith('image/') || file.size > 2 * 1024 * 1024) {
+        setError('Invalid image file. Please upload an image under 2MB.');
+        return;
+      }
+
       setImage(file);
       setImagePreview(URL.createObjectURL(file));
     }
@@ -79,8 +91,12 @@ const BlogEditor = ({ onSubmit }) => {
       <nav className="blog-editor-navbar">
         <h2>Blog Editor</h2>
         <div>
-          <button onClick={() => navigate('/')} className="nav-button">Home</button>
-          <button onClick={() => navigate('/dashboard')} className="nav-button">Dashboard</button>
+          <button onClick={() => navigate('/')} className="nav-button">
+            Home
+          </button>
+          <button onClick={() => navigate('/dashboard')} className="nav-button">
+            Dashboard
+          </button>
         </div>
       </nav>
 
@@ -103,6 +119,8 @@ const BlogEditor = ({ onSubmit }) => {
           <MDEditor
             value={content}
             onChange={setContent}
+            data-color-mode="light"
+            height={200}
           />
         </div>
         <div className="form-group">
@@ -119,14 +137,42 @@ const BlogEditor = ({ onSubmit }) => {
 
       {/* Footer */}
       <footer className="dashboard-footer">
-      <p>Follow Us:</p>
-      <div className="dashboard-social-links">
-        <a href="https://www.linkedin.com/in/kotzee-kenan-175ab4284" className="social-link" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-        <a href="https://x.com/MrColliyone" className="social-link" target="_blank" rel="noopener noreferrer">Twitter</a>
-        <a href="https://www.facebook.com/keanu.kotzee" className="social-link" target="_blank" rel="noopener noreferrer">Facebook</a>
-        <a href="https://github.com/KeanuColliyone" className="social-link" target="_blank" rel="noopener noreferrer">GitHub</a>
-     </div>
-    </footer>
+        <p>Follow Us:</p>
+        <div className="dashboard-social-links">
+          <a
+            href="https://www.linkedin.com/in/kotzee-kenan-175ab4284"
+            className="social-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            LinkedIn
+          </a>
+          <a
+            href="https://x.com/MrColliyone"
+            className="social-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Twitter
+          </a>
+          <a
+            href="https://www.facebook.com/keanu.kotzee"
+            className="social-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Facebook
+          </a>
+          <a
+            href="https://github.com/KeanuColliyone"
+            className="social-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            GitHub
+          </a>
+        </div>
+      </footer>
     </div>
   );
 };

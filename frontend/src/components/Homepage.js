@@ -7,15 +7,20 @@ const Homepage = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
 
+  const API_BASE_URL =
+    window.location.hostname !== 'localhost'
+      ? 'https://protected-stream-14951.herokuapp.com'
+      : 'http://localhost:5000';
+
   useEffect(() => {
-    fetch('http://localhost:5000/blogs')
+    fetch(`${API_BASE_URL}/blogs`)
       .then((response) => response.json())
       .then((data) => setBlogs(data))
-      .catch((error) => console.error('Error fetching blogs:', error));
+      .catch((error) => console.error('Error fetching blogs:', error.message));
 
     const userLoggedIn = localStorage.getItem('token'); // Check if a token is stored
     setIsLoggedIn(!!userLoggedIn);
-  }, []);
+  }, [API_BASE_URL]);
 
   const handleLogout = () => {
     localStorage.removeItem('token'); // Clear the token
@@ -24,20 +29,15 @@ const Homepage = () => {
   };
 
   const handleDashboardClick = () => {
-    if (isLoggedIn) {
-      navigate('/dashboard'); // Navigate to the dashboard if logged in
-    } else {
-      navigate('/login'); // Navigate to the login page if not logged in
-    }
+    navigate(isLoggedIn ? '/dashboard' : '/login');
   };
 
   const handleBlogClick = (blogId) => {
-    navigate(`/blog/${blogId}`); // Navigate to the blog details page with the blog ID
+    navigate(`/blog/${blogId}`);
   };
 
   return (
     <div className="homepage-container">
-      {/* Header */}
       <header className="homepage-header">
         <h1 className="homepage-logo">EXTRA</h1>
         <nav className="homepage-nav">
@@ -77,14 +77,13 @@ const Homepage = () => {
         </nav>
       </header>
 
-      {/* Featured Blog Section */}
-      {blogs.length > 0 && (
+      {blogs.length > 0 ? (
         <section className="featured-blog">
           <img
-            src={blogs[0].imageUrl}
+            src={blogs[0].imageUrl || '/path/to/default-image.jpg'}
             alt={blogs[0].title}
             className="featured-image"
-            onClick={() => handleBlogClick(blogs[0]._id)} // Clickable feature blog
+            onClick={() => handleBlogClick(blogs[0]._id)}
             style={{ cursor: 'pointer' }}
           />
           <div className="featured-content">
@@ -99,19 +98,20 @@ const Homepage = () => {
             </p>
           </div>
         </section>
+      ) : (
+        <p>No blogs available</p>
       )}
 
-      {/* Blog Grid */}
       <section className="homepage-grid">
         {blogs.slice(1).map((blog) => (
           <div
             key={blog._id}
             className="homepage-blog-card"
-            onClick={() => handleBlogClick(blog._id)} // Navigate to blog details on click
+            onClick={() => handleBlogClick(blog._id)}
             style={{ cursor: 'pointer' }}
           >
             <img
-              src={blog.imageUrl}
+              src={blog.imageUrl || '/path/to/default-image.jpg'}
               alt={blog.title}
               className="homepage-blog-image"
             />
@@ -128,16 +128,43 @@ const Homepage = () => {
         ))}
       </section>
 
-      {/* Footer */}
       <footer className="dashboard-footer">
-      <p>Follow Us:</p>
-      <div className="dashboard-social-links">
-        <a href="https://www.linkedin.com/in/kotzee-kenan-175ab4284" className="social-link" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-        <a href="https://x.com/MrColliyone" className="social-link" target="_blank" rel="noopener noreferrer">Twitter</a>
-        <a href="https://www.facebook.com/keanu.kotzee" className="social-link" target="_blank" rel="noopener noreferrer">Facebook</a>
-        <a href="https://github.com/KeanuColliyone" className="social-link" target="_blank" rel="noopener noreferrer">GitHub</a>
-     </div>
-    </footer>
+        <p>Follow Us:</p>
+        <div className="dashboard-social-links">
+          <a
+            href="https://www.linkedin.com/in/kotzee-kenan-175ab4284"
+            className="social-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            LinkedIn
+          </a>
+          <a
+            href="https://x.com/MrColliyone"
+            className="social-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Twitter
+          </a>
+          <a
+            href="https://www.facebook.com/keanu.kotzee"
+            className="social-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Facebook
+          </a>
+          <a
+            href="https://github.com/KeanuColliyone"
+            className="social-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            GitHub
+          </a>
+        </div>
+      </footer>
     </div>
   );
 };

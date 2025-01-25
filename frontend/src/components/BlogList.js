@@ -5,8 +5,15 @@ const BlogList = () => {
   const [loading, setLoading] = useState(true); // State for loading status
   const [error, setError] = useState(null); // State for error handling
 
+  // Determine the base API URL
+  const API_BASE_URL =
+    window.location.hostname !== "localhost"
+      ? "https://protected-stream-14951.herokuapp.com" // Heroku backend
+      : "http://localhost:5000"; // Local development
+
   useEffect(() => {
-    fetch("http://localhost:5000/blogs")
+    // Fetch blogs from the API
+    fetch(`${API_BASE_URL}/blogs`)
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
@@ -23,36 +30,50 @@ const BlogList = () => {
         setError(error.message);
         setLoading(false);
       });
-  }, []);
+  }, [API_BASE_URL]);
 
   if (loading) {
-    return <div>Loading blog posts...</div>;
+    return (
+      <div style={{ textAlign: "center", padding: "20px" }}>
+        <p>Loading blog posts...</p>
+      </div>
+    );
   }
 
   if (error) {
-    return <div>Error loading blogs: {error}</div>;
+    return (
+      <div style={{ textAlign: "center", padding: "20px", color: "red" }}>
+        <p>Error loading blogs: {error}</p>
+      </div>
+    );
   }
 
   return (
     <div>
-      <h1>Blog Posts</h1>
+      <h1 style={{ textAlign: "center", margin: "20px 0" }}>Blog Posts</h1>
       {blogs.length === 0 ? (
-        <div>No blog posts available.</div>
+        <div style={{ textAlign: "center", padding: "20px" }}>
+          <p>No blog posts available.</p>
+        </div>
       ) : (
-        <div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", padding: "20px" }}>
           {blogs.map((blog) => (
             <div
               key={blog._id}
               style={{
                 border: "1px solid #ddd",
                 padding: "10px",
-                margin: "10px",
                 borderRadius: "5px",
                 backgroundColor: "#f9f9f9",
+                boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
               }}
             >
               <h2>{blog.title}</h2>
-              <p>{blog.content}</p>
+              <p>
+                {blog.content.length > 150
+                  ? `${blog.content.slice(0, 150)}...`
+                  : blog.content}
+              </p>
               {blog.imageUrl ? (
                 <img
                   src={blog.imageUrl}

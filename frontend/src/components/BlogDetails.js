@@ -1,20 +1,45 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import '../stylings/BlogDetails.css'; // Import the CSS file
+import '../stylings/BlogDetails.css';
 
 const BlogDetails = () => {
   const { id } = useParams(); // Get blog ID from URL
   const [blog, setBlog] = useState(null);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetch(`http://localhost:5000/blogs/${id}`) // Fetch blog details
-      .then((response) => response.json())
-      .then((data) => setBlog(data))
-      .catch((error) => console.error('Error fetching blog details:', error));
-  }, [id]);
+  // Dynamic API Base URL
+  const API_BASE_URL =
+    window.location.hostname !== 'localhost'
+      ? 'https://protected-stream-14951.herokuapp.com'
+      : 'http://localhost:5000';
 
-  if (!blog) return <p>Loading...</p>;
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/blogs/${id}`) // Fetch blog details
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Error fetching blog: ${response.statusText}`);
+        }
+        return response.json();
+      })
+      .then((data) => setBlog(data))
+      .catch((error) => {
+        console.error('Error fetching blog details:', error);
+        setError('Failed to load the blog. Please try again later.');
+      });
+  }, [id, API_BASE_URL]);
+
+  if (error) {
+    return <p className="error-message">{error}</p>;
+  }
+
+  if (!blog) {
+    return (
+      <div className="loading-container">
+        <p>Loading blog details...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="blog-details-container">
@@ -37,19 +62,51 @@ const BlogDetails = () => {
 
       {/* Blog Image */}
       <div className="blog-details-image-container">
-        <img src={blog.imageUrl} alt={blog.title} className="blog-image" />
+        <img
+          src={blog.imageUrl || '/path/to/default-image.jpg'}
+          alt={blog.title}
+          className="blog-image"
+        />
       </div>
 
       {/* Footer */}
       <footer className="dashboard-footer">
-      <p>Follow Us:</p>
-      <div className="dashboard-social-links">
-        <a href="https://www.linkedin.com/in/kotzee-kenan-175ab4284" className="social-link" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-        <a href="https://x.com/MrColliyone" className="social-link" target="_blank" rel="noopener noreferrer">Twitter</a>
-        <a href="https://www.facebook.com/keanu.kotzee" className="social-link" target="_blank" rel="noopener noreferrer">Facebook</a>
-        <a href="https://github.com/KeanuColliyone" className="social-link" target="_blank" rel="noopener noreferrer">GitHub</a>
-     </div>
-    </footer>
+        <p>Follow Us:</p>
+        <div className="dashboard-social-links">
+          <a
+            href="https://www.linkedin.com/in/kotzee-kenan-175ab4284"
+            className="social-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            LinkedIn
+          </a>
+          <a
+            href="https://x.com/MrColliyone"
+            className="social-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Twitter
+          </a>
+          <a
+            href="https://www.facebook.com/keanu.kotzee"
+            className="social-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Facebook
+          </a>
+          <a
+            href="https://github.com/KeanuColliyone"
+            className="social-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            GitHub
+          </a>
+        </div>
+      </footer>
     </div>
   );
 };
