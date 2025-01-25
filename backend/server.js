@@ -26,12 +26,13 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(
   cors({
-    origin: '*', // Replace '*' with your frontend's URL (e.g., https://yourfrontend.com) for stricter security
+    origin: 'https://keanucolliyone.github.io',
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Restrict allowed HTTP methods
     credentials: true, // Enable credentials for CORS
   })
 );
 app.use(express.json()); // Parse JSON request bodies
+app.options('*', cors());
 
 // Serve static files from the "uploads" directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
