@@ -6,7 +6,6 @@ const path = require('path');
 const connectDB = require('./db'); // MongoDB connection function
 const userRoutes = require('./routes/userRoutes'); // User routes
 const blogRoutes = require('./routes/blogRoutes'); // Blog routes
-const newsRoutes = require('./routes/newsRoutes');
 
 // Load environment variables
 dotenv.config();
@@ -26,13 +25,12 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(
   cors({
-    origin: '*',
+    origin: '*', // Replace '*' with your frontend's URL (e.g., https://yourfrontend.com) for stricter security
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Restrict allowed HTTP methods
     credentials: true, // Enable credentials for CORS
   })
 );
 app.use(express.json()); // Parse JSON request bodies
-app.options('*', cors());
 
 // Serve static files from the "uploads" directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -43,8 +41,6 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/news', newsRoutes);
-
 // Root route
 app.get('/', (req, res) => {
   res.status(200).send('Backend is running!');
@@ -54,9 +50,7 @@ app.get('/', (req, res) => {
 app.use('/users', userRoutes);
 
 // Blog routes
-app.use('/blogs', (req, res) => {
-  res.json({ message: 'Blogs data' });
-});
+app.use('/blogs', blogRoutes);
 
 // 404 handler for unmatched routes
 app.use((req, res) => {
