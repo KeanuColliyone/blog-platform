@@ -4,6 +4,7 @@ import '../stylings/Homepage.css';
 
 const Homepage = () => {
   const [blogs, setBlogs] = useState([]);
+  const [animeNews, setAnimeNews] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
 
@@ -13,10 +14,17 @@ const Homepage = () => {
       : 'http://localhost:5000';
 
   useEffect(() => {
+    // Fetch blogs
     fetch(`${API_BASE_URL}/blogs`)
       .then((response) => response.json())
       .then((data) => setBlogs(data))
       .catch((error) => console.error('Error fetching blogs:', error.message));
+
+    // Fetch anime news
+    fetch(`${API_BASE_URL}/news/latest`)
+      .then((response) => response.json())
+      .then((data) => setAnimeNews(data))
+      .catch((error) => console.error('Error fetching anime news:', error.message));
 
     const userLoggedIn = localStorage.getItem('token'); // Check if a token is stored
     setIsLoggedIn(!!userLoggedIn);
@@ -77,6 +85,7 @@ const Homepage = () => {
         </nav>
       </header>
 
+      {/* Featured Blog Section */}
       {blogs.length > 0 ? (
         <section className="featured-blog">
           <img
@@ -102,6 +111,26 @@ const Homepage = () => {
         <p>No blogs available</p>
       )}
 
+      {/* Anime News Section */}
+      <section className="anime-news-section">
+        <h2>Latest Anime News</h2>
+        {animeNews.length > 0 ? (
+          <ul className="anime-news-list">
+            {animeNews.map((news, index) => (
+              <li key={index} className="anime-news-item">
+                <a href={news.url} target="_blank" rel="noopener noreferrer">
+                  {news.title}
+                </a>
+                <p>{news.description}</p>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No anime news available</p>
+        )}
+      </section>
+
+      {/* Blog Grid Section */}
       <section className="homepage-grid">
         {blogs.slice(1).map((blog) => (
           <div
