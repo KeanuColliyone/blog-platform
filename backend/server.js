@@ -2,6 +2,7 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require('path');
 const connectDB = require('./db'); // MongoDB connection function
 const userRoutes = require('./routes/userRoutes'); // User routes
 const blogRoutes = require('./routes/blogRoutes'); // Blog routes
@@ -24,13 +25,15 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(
   cors({
-    origin: '*',
+    origin: '*', // Replace '*' with your frontend's URL (e.g., https://yourfrontend.com) for stricter security
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Restrict allowed HTTP methods
-    credentials: true, // Enable credentials for CORShe
+    credentials: true, // Enable credentials for CORS
   })
 );
 app.use(express.json()); // Parse JSON request bodies
-app.use('/uploads', express.static('uploads')); // Serve static files from "uploads"
+
+// Serve static files from the "uploads" directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Request logger middleware
 app.use((req, res, next) => {

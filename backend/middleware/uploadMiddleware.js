@@ -6,9 +6,10 @@ const fs = require('fs');
 const uploadDir = path.join(__dirname, '..', 'uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true }); // Ensure directory is created recursively
+  console.log('Upload directory created:', uploadDir);
 }
 
-// Set storage engine
+// Set up storage engine
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, uploadDir); // Files will be saved in the 'uploads' directory
@@ -27,6 +28,7 @@ const fileFilter = (req, file, cb) => {
   if (allowedFileTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
+    console.error(`Rejected file type: ${file.mimetype}`);
     cb(new Error('Invalid file type. Only JPEG, PNG, and GIF are allowed.'));
   }
 };
@@ -35,9 +37,11 @@ const fileFilter = (req, file, cb) => {
 const handleMulterErrors = (err, req, res, next) => {
   if (err instanceof multer.MulterError) {
     // Handle Multer-specific errors
+    console.error(`Multer error: ${err.message}`);
     res.status(400).json({ message: `Multer error: ${err.message}` });
   } else if (err) {
     // Handle other errors
+    console.error(`File upload error: ${err.message}`);
     res.status(400).json({ message: `File upload error: ${err.message}` });
   } else {
     next();

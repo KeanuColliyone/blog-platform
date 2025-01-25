@@ -6,6 +6,17 @@ const { authenticate } = require('../middleware/authMiddleware');
 const { upload } = require('../middleware/uploadMiddleware');
 const router = express.Router();
 
+// Helper function to delete image files
+const deleteImage = (imageUrl) => {
+  const imagePath = path.join(__dirname, '../uploads', path.basename(imageUrl));
+  if (fs.existsSync(imagePath)) {
+    fs.unlinkSync(imagePath);
+    console.log('Image deleted:', imagePath);
+  } else {
+    console.warn(`Image not found: ${imagePath}`);
+  }
+};
+
 // Create a new blog post
 router.post('/', authenticate, upload.single('image'), async (req, res) => {
   const { title, content } = req.body;
@@ -78,13 +89,8 @@ router.put('/:id', authenticate, upload.single('image'), async (req, res) => {
       return res.status(404).json({ message: 'Blog post not found or not authorized' });
     }
 
-    // Delete old image if a new one is uploaded
     if (newImageUrl && blogPost.imageUrl) {
-      const oldImagePath = path.join(__dirname, '../uploads', path.basename(blogPost.imageUrl));
-      if (fs.existsSync(oldImagePath)) {
-        fs.unlinkSync(oldImagePath);
-        console.log('Old image deleted:', oldImagePath);
-      }
+      deleteImage(blogPost.imageUrl); // Use helper function
     }
 
     blogPost.title = title || blogPost.title;
@@ -109,11 +115,7 @@ router.delete('/:id', authenticate, async (req, res) => {
     }
 
     if (blogPost.imageUrl) {
-      const imagePath = path.join(__dirname, '../uploads', path.basename(blogPost.imageUrl));
-      if (fs.existsSync(imagePath)) {
-        fs.unlinkSync(imagePath);
-        console.log('Image deleted:', imagePath);
-      }
+      deleteImage(blogPost.imageUrl); // Use helper function
     }
 
     await blogPost.deleteOne();
