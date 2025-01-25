@@ -8,7 +8,7 @@ const BlogList = () => {
   // Determine the base API URL
   const API_BASE_URL =
     window.location.hostname !== "localhost"
-      ? "https://protected-stream-14951.herokuapp.com" // Heroku backend
+      ? "https://protected-stream-14951-b7b45def3c42.herokuapp.com" // Heroku backend
       : "http://localhost:5000"; // Local development
 
   useEffect(() => {

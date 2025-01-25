@@ -11,7 +11,7 @@ const Login = () => {
   // Dynamic API Base URL
   const API_BASE_URL =
     window.location.hostname !== 'localhost'
-      ? 'https://protected-stream-14951.herokuapp.com'
+      ? 'https://protected-stream-14951-b7b45def3c42.herokuapp.com'
       : 'http://localhost:5000';
 
   const handleLogin = async (e) => {

@@ -4,14 +4,20 @@ import './stylings/Dashboard.css';
 
 const Dashboard = () => {
   const [blogs, setBlogs] = useState([]);
-  const [loading, setLoading] = useState(true); // Loading state
-  const [error, setError] = useState(null); // Error state
-  const token = localStorage.getItem('token'); // Retrieve token
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const token = localStorage.getItem('token');
   const navigate = useNavigate();
+
+  // Dynamic API Base URL
+  const API_BASE_URL =
+    window.location.hostname !== 'localhost'
+      ? 'https://protected-stream-14951-b7b45def3c42.herokuapp.com'
+      : 'http://localhost:5000';
 
   useEffect(() => {
     if (token) {
-      fetch('http://localhost:5000/blogs/user', {
+      fetch(`${API_BASE_URL}/blogs/user`, {
         headers: { Authorization: `Bearer ${token}` },
       })
         .then((response) => {
@@ -21,11 +27,7 @@ const Dashboard = () => {
           return response.json();
         })
         .then((data) => {
-          if (Array.isArray(data)) {
-            setBlogs(data);
-          } else {
-            setBlogs([]);
-          }
+          setBlogs(Array.isArray(data) ? data : []);
           setLoading(false);
         })
         .catch((error) => {
@@ -33,31 +35,42 @@ const Dashboard = () => {
           setLoading(false);
         });
     } else {
-      setError('Authentication token missing');
+      setError('Authentication token is missing. Please log in again.');
       setLoading(false);
     }
-  }, [token]);
+  }, [token, API_BASE_URL]);
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this blog post?')) {
       try {
-        await fetch(`http://localhost:5000/blogs/${id}`, {
+        const response = await fetch(`${API_BASE_URL}/blogs/${id}`, {
           method: 'DELETE',
           headers: { Authorization: `Bearer ${token}` },
         });
+        if (!response.ok) {
+          throw new Error('Failed to delete the blog post.');
+        }
         setBlogs((prevBlogs) => prevBlogs.filter((blog) => blog._id !== id));
       } catch (error) {
         console.error('Error deleting blog:', error);
+        alert('Error deleting the blog post. Please try again.');
       }
     }
   };
 
   if (loading) {
-    return <div>Loading your blog posts...</div>;
+    return <div className="loading-message">Loading your blog posts...</div>;
   }
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return (
+      <div className="error-message">
+        <p>Error: {error}</p>
+        <button onClick={() => navigate('/login')} className="error-button">
+          Go to Login
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -80,44 +93,84 @@ const Dashboard = () => {
           Create New Blog Post
         </button>
 
-        <div className="dashboard-grid">
-          {blogs.map((blog) => (
-            <div key={blog._id} className="dashboard-blog-card">
-              <img src={blog.imageUrl} alt="Blog" className="dashboard-blog-image" />
-              <h2 className="dashboard-blog-title">{blog.title}</h2>
-              <p className="dashboard-blog-content">
-                {blog.content.length > 100 ? `${blog.content.slice(0, 100)}...` : blog.content}
-              </p>
-              <p className="dashboard-blog-author">By {blog.author?.username || 'Unknown'}</p>
-              <div className="dashboard-actions">
-                <button
-                  onClick={() => navigate(`/blogs/editor/${blog._id}`)}
-                  className="dashboard-edit-button"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(blog._id)}
-                  className="dashboard-delete-button"
-                >
-                  Delete
-                </button>
+        {blogs.length === 0 ? (
+          <p className="no-blogs-message">You have no blog posts yet.</p>
+        ) : (
+          <div className="dashboard-grid">
+            {blogs.map((blog) => (
+              <div key={blog._id} className="dashboard-blog-card">
+                <img
+                  src={blog.imageUrl || '/path/to/default-image.jpg'}
+                  alt="Blog"
+                  className="dashboard-blog-image"
+                />
+                <h2 className="dashboard-blog-title">{blog.title}</h2>
+                <p className="dashboard-blog-content">
+                  {blog.content.length > 100
+                    ? `${blog.content.slice(0, 100)}...`
+                    : blog.content}
+                </p>
+                <p className="dashboard-blog-author">
+                  By {blog.author?.username || 'Unknown'}
+                </p>
+                <div className="dashboard-actions">
+                  <button
+                    onClick={() => navigate(`/blogs/editor/${blog._id}`)}
+                    className="dashboard-edit-button"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(blog._id)}
+                    className="dashboard-delete-button"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </main>
 
       {/* Footer */}
       <footer className="dashboard-footer">
-      <p>Follow Us:</p>
-      <div className="dashboard-social-links">
-        <a href="https://www.linkedin.com/in/kotzee-kenan-175ab4284" className="social-link" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-        <a href="https://x.com/MrColliyone" className="social-link" target="_blank" rel="noopener noreferrer">Twitter</a>
-        <a href="https://www.facebook.com/keanu.kotzee" className="social-link" target="_blank" rel="noopener noreferrer">Facebook</a>
-        <a href="https://github.com/KeanuColliyone" className="social-link" target="_blank" rel="noopener noreferrer">GitHub</a>
-     </div>
-    </footer>
+        <p>Follow Us:</p>
+        <div className="dashboard-social-links">
+          <a
+            href="https://www.linkedin.com/in/kotzee-kenan-175ab4284"
+            className="social-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            LinkedIn
+          </a>
+          <a
+            href="https://x.com/MrColliyone"
+            className="social-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Twitter
+          </a>
+          <a
+            href="https://www.facebook.com/keanu.kotzee"
+            className="social-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Facebook
+          </a>
+          <a
+            href="https://github.com/KeanuColliyone"
+            className="social-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            GitHub
+          </a>
+        </div>
+      </footer>
     </div>
   );
 };
