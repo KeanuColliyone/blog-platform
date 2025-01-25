@@ -24,9 +24,8 @@ const Homepage = () => {
     fetch(`${API_BASE_URL}/news/latest`)
       .then((response) => response.json())
       .then((data) => {
-        console.log('Anime News API Response:', data); // Debugging API response
         if (data && Array.isArray(data.news)) {
-          setAnimeNews(data.news); // Ensure "news" is the array field
+          setAnimeNews(data.news);
         } else {
           console.error('Invalid anime news format:', data);
         }
@@ -108,9 +107,11 @@ const Homepage = () => {
               By {blogs[0].author?.username || 'Unknown'}
             </p>
             <p className="featured-text">
-              {typeof blogs[0]?.content === 'string' && blogs[0]?.content.length > 200
-                ? `${blogs[0]?.content.slice(0, 200)}...`
-                : blogs[0]?.content || 'No content available'}
+              {typeof blogs[0]?.content === 'string'
+                ? blogs[0].content.length > 200
+                  ? `${blogs[0].content.slice(0, 200)}...`
+                  : blogs[0].content
+                : 'No content available'}
             </p>
           </div>
         </section>
@@ -153,9 +154,11 @@ const Homepage = () => {
             />
             <h3 className="homepage-blog-title">{blog.title}</h3>
             <p className="homepage-blog-content">
-              {typeof blog.content === 'string' && blog.content.length > 100
-                ? `${blog.content.slice(0, 100)}...`
-                : blog.content || 'No content available'}
+              {typeof blog.content === 'string'
+                ? blog.content.length > 100
+                  ? `${blog.content.slice(0, 100)}...`
+                  : blog.content
+                : 'No content available'}
             </p>
             <p className="homepage-blog-author">
               By {blog.author?.username || 'Unknown'}
