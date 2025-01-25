@@ -23,17 +23,25 @@ const Homepage = () => {
     // Fetch anime news
     fetch(`${API_BASE_URL}/news/latest`)
       .then((response) => response.json())
-      .then((data) => setAnimeNews(data))
+      .then((data) => {
+        console.log('Anime News API Response:', data); // Debugging API response
+        if (Array.isArray(data)) {
+          setAnimeNews(data);
+        } else {
+          console.error('Invalid anime news data format:', data);
+        }
+      })
       .catch((error) => console.error('Error fetching anime news:', error.message));
 
-    const userLoggedIn = localStorage.getItem('token'); // Check if a token is stored
+    // Check if the user is logged in
+    const userLoggedIn = localStorage.getItem('token');
     setIsLoggedIn(!!userLoggedIn);
   }, [API_BASE_URL]);
 
   const handleLogout = () => {
-    localStorage.removeItem('token'); // Clear the token
+    localStorage.removeItem('token');
     setIsLoggedIn(false);
-    navigate('/login'); // Redirect to login page
+    navigate('/login');
   };
 
   const handleDashboardClick = () => {
@@ -114,7 +122,7 @@ const Homepage = () => {
       {/* Anime News Section */}
       <section className="anime-news-section">
         <h2>Latest Anime News</h2>
-        {animeNews.length > 0 ? (
+        {animeNews && Array.isArray(animeNews) && animeNews.length > 0 ? (
           <ul className="anime-news-list">
             {animeNews.map((news, index) => (
               <li key={index} className="anime-news-item">
