@@ -23,7 +23,7 @@
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build"
   },
-  "homepage": "https://KeanuColliyone.github.io/blog-platform\frontend\src\components\Homepage.js",
+  "homepage": "https://KeanuColliyone.github.io/blog-platform",
   "eslintConfig": {
     "extends": [
       "react-app",
