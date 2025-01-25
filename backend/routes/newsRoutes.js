@@ -6,7 +6,7 @@ const router = express.Router();
 router.get('/latest', async (req, res) => {
   try {
     // Fetch news from Anime News Network
-    const response = await axios.get('https://api.animenewsnetwork.com/v1/latest-news', {
+    const response = await axios.get('https://api.animenewsnetwork.com/encyclopedia/reports.xml?id=155', {
       params: { limit: 10 }, // Fetch the top 10 news articles
     });
 
