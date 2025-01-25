@@ -13,7 +13,6 @@ const Homepage = () => {
       ? 'https://protected-stream-14951-b7b45def3c42.herokuapp.com'
       : 'http://localhost:5000';
 
-  // Helper function to truncate text safely
   const truncateText = (text, maxLength) => {
     if (typeof text === 'string') {
       return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
@@ -27,10 +26,10 @@ const Homepage = () => {
       .then((response) => response.json())
       .then((data) => {
         console.log('Blogs API Response:', data); // Debugging API response
-        if (data && Array.isArray(data.data)) {
-          setBlogs(data.data); // Handle expected structure
+        if (data && Array.isArray(data.blogs)) {
+          setBlogs(data.blogs); // Adjust this based on your actual API response structure
         } else {
-          console.error('Blogs API response is not an array:', data);
+          console.error('Blogs API response is not an array or missing blogs key:', data);
           setBlogs([]); // Fallback to an empty array
         }
       })
@@ -41,15 +40,19 @@ const Homepage = () => {
       .then((response) => response.json())
       .then((data) => {
         console.log('Anime News API Response:', data); // Debugging API response
-        if (data && Array.isArray(data.news)) {
-          const validatedNews = data.news.map((newsItem) => ({
-            title: typeof newsItem.title === 'string' ? newsItem.title : 'Untitled',
-            description:
-              typeof newsItem.description === 'string'
-                ? newsItem.description
-                : 'No description available',
-            url: newsItem.url || '#',
-          }));
+        if (Array.isArray(data)) {
+          const validatedNews = data
+            .filter(
+              (item) =>
+                typeof item.title === 'string' &&
+                typeof item.description === 'string' &&
+                item.url
+            )
+            .map((newsItem) => ({
+              title: newsItem.title,
+              description: newsItem.description,
+              url: newsItem.url,
+            }));
           setAnimeNews(validatedNews);
         } else {
           console.error('Invalid anime news format:', data);
