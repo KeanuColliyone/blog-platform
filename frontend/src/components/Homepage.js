@@ -4,79 +4,42 @@ import '../stylings/Homepage.css';
 
 const Homepage = () => {
   const [blogs, setBlogs] = useState([]);
-  const [animeNews, setAnimeNews] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
 
-  const API_BASE_URL =
-    window.location.hostname !== 'localhost'
-      ? 'https://protected-stream-14951-b7b45def3c42.herokuapp.com'
-      : 'http://localhost:5000';
-
-  // Helper function to truncate text safely
-  const truncateText = (text, maxLength) => {
-    if (typeof text === 'string') {
-      return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
-    }
-    return 'Invalid content'; // Fallback for non-string content
-  };
-
   useEffect(() => {
-    // Fetch blogs
-    fetch(`${API_BASE_URL}/blogs`)
+    fetch('http://localhost:5000/blogs')
       .then((response) => response.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
-          setBlogs(data);
-        } else {
-          console.error('Blogs API response is not an array:', data);
-        }
-      })
-      .catch((error) => console.error('Error fetching blogs:', error.message));
+      .then((data) => setBlogs(data))
+      .catch((error) => console.error('Error fetching blogs:', error));
 
-    // Fetch anime news
-    fetch(`${API_BASE_URL}/news/latest`)
-      .then((response) => response.json())
-      .then((data) => {
-        console.log('Anime News API Response:', data); // Debugging API response
-        if (Array.isArray(data)) {
-          const validatedNews = data.map((newsItem) => ({
-            title: typeof newsItem.title === 'string' ? newsItem.title : 'Untitled',
-            description:
-              typeof newsItem.description === 'string'
-                ? newsItem.description
-                : 'No description available',
-            url: newsItem.url || '#',
-          }));
-          setAnimeNews(validatedNews);
-        } else {
-          console.error('Invalid anime news format:', data);
-        }
-      })
-      .catch((error) => console.error('Error fetching anime news:', error.message));
-
-    const userLoggedIn = localStorage.getItem('token');
+    const userLoggedIn = localStorage.getItem('token'); // Check if a token is stored
     setIsLoggedIn(!!userLoggedIn);
-  }, [API_BASE_URL]);
+  }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
+    localStorage.removeItem('token'); // Clear the token
     setIsLoggedIn(false);
-    navigate('/login');
+    navigate('/login'); // Redirect to login page
   };
 
   const handleDashboardClick = () => {
-    navigate(isLoggedIn ? '/dashboard' : '/login');
+    if (isLoggedIn) {
+      navigate('/dashboard'); // Navigate to the dashboard if logged in
+    } else {
+      navigate('/login'); // Navigate to the login page if not logged in
+    }
   };
 
   const handleBlogClick = (blogId) => {
-    navigate(`/blog/${blogId}`);
+    navigate(`/blog/${blogId}`); // Navigate to the blog details page with the blog ID
   };
 
   return (
     <div className="homepage-container">
+      {/* Header */}
       <header className="homepage-header">
-        <h1 className="homepage-logo">BLOGTAKU</h1>
+        <h1 className="homepage-logo">EXTRA</h1>
         <nav className="homepage-nav">
           <ul className="nav-links">
             <li>
@@ -115,62 +78,49 @@ const Homepage = () => {
       </header>
 
       {/* Featured Blog Section */}
-      {blogs.length > 0 ? (
+      {blogs.length > 0 && (
         <section className="featured-blog">
           <img
-            src={blogs[0]?.imageUrl || '/path/to/default-image.jpg'}
-            alt={blogs[0]?.title || 'Featured Blog'}
+            src={blogs[0].imageUrl}
+            alt={blogs[0].title}
             className="featured-image"
-            onClick={() => handleBlogClick(blogs[0]._id)}
+            onClick={() => handleBlogClick(blogs[0]._id)} // Clickable feature blog
             style={{ cursor: 'pointer' }}
           />
           <div className="featured-content">
-            <h2 className="featured-title">{blogs[0]?.title || 'No Title'}</h2>
+            <h2 className="featured-title">{blogs[0].title}</h2>
             <p className="featured-author">
-              By {blogs[0]?.author?.username || 'Unknown'}
+              By {blogs[0].author?.username || 'Unknown'}
             </p>
-            <p className="featured-text">{truncateText(blogs[0]?.content, 200)}</p>
+            <p className="featured-text">
+              {blogs[0].content.length > 200
+                ? `${blogs[0].content.slice(0, 200)}...`
+                : blogs[0].content}
+            </p>
           </div>
         </section>
-      ) : (
-        <p>No blogs available</p>
       )}
 
-      {/* Anime News Section */}
-      <section className="anime-news-section">
-        <h2>Latest Anime News</h2>
-        {animeNews.length > 0 ? (
-          <ul className="anime-news-list">
-            {animeNews.map((news, index) => (
-              <li key={index} className="anime-news-item">
-                <a href={news.url} target="_blank" rel="noopener noreferrer">
-                  {news.title}
-                </a>
-                <p>{truncateText(news.description, 100)}</p>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No anime news available</p>
-        )}
-      </section>
-
-      {/* Blog Grid Section */}
+      {/* Blog Grid */}
       <section className="homepage-grid">
         {blogs.slice(1).map((blog) => (
           <div
             key={blog._id}
             className="homepage-blog-card"
-            onClick={() => handleBlogClick(blog._id)}
+            onClick={() => handleBlogClick(blog._id)} // Navigate to blog details on click
             style={{ cursor: 'pointer' }}
           >
             <img
-              src={blog.imageUrl || '/path/to/default-image.jpg'}
-              alt={blog.title || 'Blog'}
+              src={blog.imageUrl}
+              alt={blog.title}
               className="homepage-blog-image"
             />
-            <h3 className="homepage-blog-title">{blog.title || 'No Title'}</h3>
-            <p className="homepage-blog-content">{truncateText(blog.content, 100)}</p>
+            <h3 className="homepage-blog-title">{blog.title}</h3>
+            <p className="homepage-blog-content">
+              {blog.content.length > 100
+                ? `${blog.content.slice(0, 100)}...`
+                : blog.content}
+            </p>
             <p className="homepage-blog-author">
               By {blog.author?.username || 'Unknown'}
             </p>
@@ -178,43 +128,16 @@ const Homepage = () => {
         ))}
       </section>
 
+      {/* Footer */}
       <footer className="dashboard-footer">
-        <p>Follow Us:</p>
-        <div className="dashboard-social-links">
-          <a
-            href="https://www.linkedin.com/in/kotzee-kenan-175ab4284"
-            className="social-link"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            LinkedIn
-          </a>
-          <a
-            href="https://x.com/MrColliyone"
-            className="social-link"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Twitter
-          </a>
-          <a
-            href="https://www.facebook.com/keanu.kotzee"
-            className="social-link"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Facebook
-          </a>
-          <a
-            href="https://github.com/KeanuColliyone"
-            className="social-link"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            GitHub
-          </a>
-        </div>
-      </footer>
+      <p>Follow Us:</p>
+      <div className="dashboard-social-links">
+        <a href="https://www.linkedin.com/in/kotzee-kenan-175ab4284" className="social-link" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        <a href="https://x.com/MrColliyone" className="social-link" target="_blank" rel="noopener noreferrer">Twitter</a>
+        <a href="https://www.facebook.com/keanu.kotzee" className="social-link" target="_blank" rel="noopener noreferrer">Facebook</a>
+        <a href="https://github.com/KeanuColliyone" className="social-link" target="_blank" rel="noopener noreferrer">GitHub</a>
+     </div>
+    </footer>
     </div>
   );
 };
