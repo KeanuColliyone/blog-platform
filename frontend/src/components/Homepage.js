@@ -13,11 +13,12 @@ const Homepage = () => {
       ? 'https://protected-stream-14951-b7b45def3c42.herokuapp.com'
       : 'http://localhost:5000';
 
+  // Helper function to truncate text safely
   const truncateText = (text, maxLength) => {
     if (typeof text === 'string') {
       return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
     }
-    return 'Invalid content';
+    return 'Invalid content'; // Fallback for non-string content
   };
 
   useEffect(() => {
@@ -37,8 +38,17 @@ const Homepage = () => {
     fetch(`${API_BASE_URL}/news/latest`)
       .then((response) => response.json())
       .then((data) => {
-        if (data && Array.isArray(data.news)) {
-          setAnimeNews(data.news);
+        console.log('Anime News API Response:', data); // Debugging API response
+        if (Array.isArray(data)) {
+          const validatedNews = data.map((newsItem) => ({
+            title: typeof newsItem.title === 'string' ? newsItem.title : 'Untitled',
+            description:
+              typeof newsItem.description === 'string'
+                ? newsItem.description
+                : 'No description available',
+            url: newsItem.url || '#',
+          }));
+          setAnimeNews(validatedNews);
         } else {
           console.error('Invalid anime news format:', data);
         }
@@ -119,9 +129,7 @@ const Homepage = () => {
             <p className="featured-author">
               By {blogs[0]?.author?.username || 'Unknown'}
             </p>
-            <p className="featured-text">
-              {truncateText(blogs[0]?.content, 200)}
-            </p>
+            <p className="featured-text">{truncateText(blogs[0]?.content, 200)}</p>
           </div>
         </section>
       ) : (
@@ -135,8 +143,8 @@ const Homepage = () => {
           <ul className="anime-news-list">
             {animeNews.map((news, index) => (
               <li key={index} className="anime-news-item">
-                <a href={news.url || '#'} target="_blank" rel="noopener noreferrer">
-                  {news.title || 'No title available'}
+                <a href={news.url} target="_blank" rel="noopener noreferrer">
+                  {news.title}
                 </a>
                 <p>{truncateText(news.description, 100)}</p>
               </li>
@@ -162,9 +170,7 @@ const Homepage = () => {
               className="homepage-blog-image"
             />
             <h3 className="homepage-blog-title">{blog.title || 'No Title'}</h3>
-            <p className="homepage-blog-content">
-              {truncateText(blog.content, 100)}
-            </p>
+            <p className="homepage-blog-content">{truncateText(blog.content, 100)}</p>
             <p className="homepage-blog-author">
               By {blog.author?.username || 'Unknown'}
             </p>
