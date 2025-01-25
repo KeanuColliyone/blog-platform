@@ -24,9 +24,9 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(
   cors({
-    origin: 'https://keanucolliyone.github.io',
+    origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Restrict allowed HTTP methods
-    credentials: true, // Enable credentials for CORS
+    credentials: true, // Enable credentials for CORShe
   })
 );
 app.use(express.json()); // Parse JSON request bodies
