@@ -6,6 +6,7 @@ const path = require('path');
 const connectDB = require('./db'); // MongoDB connection function
 const userRoutes = require('./routes/userRoutes'); // User routes
 const blogRoutes = require('./routes/blogRoutes'); // Blog routes
+const newsRoutes = require('./routes/newsRoutes');
 
 // Load environment variables
 dotenv.config();
@@ -40,6 +41,8 @@ app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
   next();
 });
+
+app.use('/news', newsRoutes);
 
 // Root route
 app.get('/', (req, res) => {
