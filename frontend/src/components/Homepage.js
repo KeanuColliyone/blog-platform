@@ -13,13 +13,23 @@ const Homepage = () => {
       ? 'https://protected-stream-14951-b7b45def3c42.herokuapp.com'
       : 'http://localhost:5000';
 
+  const truncateText = (text, maxLength) => {
+    if (typeof text === 'string') {
+      return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
+    }
+    return 'Invalid content';
+  };
+
   useEffect(() => {
     // Fetch blogs
     fetch(`${API_BASE_URL}/blogs`)
       .then((response) => response.json())
       .then((data) => {
-        console.log('Blogs API Response:', data); // Debugging API response
-        setBlogs(data || []); // Ensure data is an array
+        if (Array.isArray(data)) {
+          setBlogs(data);
+        } else {
+          console.error('Blogs API response is not an array:', data);
+        }
       })
       .catch((error) => console.error('Error fetching blogs:', error.message));
 
@@ -27,9 +37,8 @@ const Homepage = () => {
     fetch(`${API_BASE_URL}/news/latest`)
       .then((response) => response.json())
       .then((data) => {
-        console.log('Anime News API Response:', data); // Debugging API response
         if (data && Array.isArray(data.news)) {
-          setAnimeNews(data.news); // Ensure "news" is an array field
+          setAnimeNews(data.news);
         } else {
           console.error('Invalid anime news format:', data);
         }
@@ -111,9 +120,7 @@ const Homepage = () => {
               By {blogs[0]?.author?.username || 'Unknown'}
             </p>
             <p className="featured-text">
-              {typeof blogs[0]?.content === 'string' && blogs[0].content.length > 200
-                ? `${blogs[0].content.slice(0, 200)}...`
-                : blogs[0]?.content || 'No content available'}
+              {truncateText(blogs[0]?.content, 200)}
             </p>
           </div>
         </section>
@@ -124,14 +131,14 @@ const Homepage = () => {
       {/* Anime News Section */}
       <section className="anime-news-section">
         <h2>Latest Anime News</h2>
-        {Array.isArray(animeNews) && animeNews.length > 0 ? (
+        {animeNews.length > 0 ? (
           <ul className="anime-news-list">
             {animeNews.map((news, index) => (
               <li key={index} className="anime-news-item">
                 <a href={news.url || '#'} target="_blank" rel="noopener noreferrer">
-                  {typeof news.title === 'string' ? news.title : 'No title available'}
+                  {news.title || 'No title available'}
                 </a>
-                <p>{typeof news.description === 'string' ? news.description : 'No description available'}</p>
+                <p>{truncateText(news.description, 100)}</p>
               </li>
             ))}
           </ul>
@@ -156,9 +163,7 @@ const Homepage = () => {
             />
             <h3 className="homepage-blog-title">{blog.title || 'No Title'}</h3>
             <p className="homepage-blog-content">
-              {typeof blog.content === 'string' && blog.content.length > 100
-                ? `${blog.content.slice(0, 100)}...`
-                : blog.content || 'No content available'}
+              {truncateText(blog.content, 100)}
             </p>
             <p className="homepage-blog-author">
               By {blog.author?.username || 'Unknown'}
