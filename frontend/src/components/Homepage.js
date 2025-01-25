@@ -12,20 +12,35 @@ const Homepage = () => {
       ? 'https://protected-stream-14951-b7b45def3c42.herokuapp.com'
       : 'http://localhost:5000';
 
+  // Helper function to truncate text safely
+  const truncateText = (text, maxLength) => {
+    if (typeof text === 'string') {
+      return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
+    }
+    return 'Invalid content'; // Fallback for non-string content
+  };
+
   useEffect(() => {
-    fetch(${API_BASE_URL}/blogs)
+    // Fetch blogs
+    fetch(`${API_BASE_URL}/blogs`)
       .then((response) => response.json())
-      .then((data) => setBlogs(data))
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setBlogs(data);
+        } else {
+          console.error('Blogs API response is not an array:', data);
+        }
+      })
       .catch((error) => console.error('Error fetching blogs:', error.message));
 
-    const userLoggedIn = localStorage.getItem('token'); // Check if a token is stored
+    const userLoggedIn = localStorage.getItem('token');
     setIsLoggedIn(!!userLoggedIn);
   }, [API_BASE_URL]);
 
   const handleLogout = () => {
-    localStorage.removeItem('token'); // Clear the token
+    localStorage.removeItem('token');
     setIsLoggedIn(false);
-    navigate('/login'); // Redirect to login page
+    navigate('/login');
   };
 
   const handleDashboardClick = () => {
@@ -33,7 +48,7 @@ const Homepage = () => {
   };
 
   const handleBlogClick = (blogId) => {
-    navigate(/blog/${blogId});
+    navigate(`/blog/${blogId}`);
   };
 
   return (
@@ -77,31 +92,29 @@ const Homepage = () => {
         </nav>
       </header>
 
+      {/* Featured Blog Section */}
       {blogs.length > 0 ? (
         <section className="featured-blog">
           <img
-            src={blogs[0].imageUrl || '/path/to/default-image.jpg'}
-            alt={blogs[0].title}
+            src={blogs[0]?.imageUrl || '/path/to/default-image.jpg'}
+            alt={blogs[0]?.title || 'Featured Blog'}
             className="featured-image"
             onClick={() => handleBlogClick(blogs[0]._id)}
             style={{ cursor: 'pointer' }}
           />
           <div className="featured-content">
-            <h2 className="featured-title">{blogs[0].title}</h2>
+            <h2 className="featured-title">{blogs[0]?.title || 'No Title'}</h2>
             <p className="featured-author">
-              By {blogs[0].author?.username || 'Unknown'}
+              By {blogs[0]?.author?.username || 'Unknown'}
             </p>
-            <p className="featured-text">
-              {blogs[0].content.length > 200
-                ? ${blogs[0].content.slice(0, 200)}...
-                : blogs[0].content}
-            </p>
+            <p className="featured-text">{truncateText(blogs[0]?.content, 200)}</p>
           </div>
         </section>
       ) : (
         <p>No blogs available</p>
       )}
 
+      {/* Blog Grid Section */}
       <section className="homepage-grid">
         {blogs.slice(1).map((blog) => (
           <div
@@ -112,15 +125,11 @@ const Homepage = () => {
           >
             <img
               src={blog.imageUrl || '/path/to/default-image.jpg'}
-              alt={blog.title}
+              alt={blog.title || 'Blog'}
               className="homepage-blog-image"
             />
-            <h3 className="homepage-blog-title">{blog.title}</h3>
-            <p className="homepage-blog-content">
-              {blog.content.length > 100
-                ? ${blog.content.slice(0, 100)}...
-                : blog.content}
-            </p>
+            <h3 className="homepage-blog-title">{blog.title || 'No Title'}</h3>
+            <p className="homepage-blog-content">{truncateText(blog.content, 100)}</p>
             <p className="homepage-blog-author">
               By {blog.author?.username || 'Unknown'}
             </p>
