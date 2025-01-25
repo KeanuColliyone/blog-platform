@@ -11,9 +11,12 @@ import BlogDetails from './components/BlogDetails';
 function App() {
   const handleSubmitBlog = async (formData, blogId) => {
     const token = localStorage.getItem('token');
+    const isProduction = window.location.hostname !== 'localhost';  // Check if we're in production
+  
     const url = isProduction
       ? `https://protected-stream-14951.herokuapp.com/blogs/${blogId || ''}` // Heroku URL for production
       : `http://localhost:5000/blogs/${blogId || ''}`; // Localhost URL for development
+  
     const method = blogId ? 'PUT' : 'POST';
 
     const response = await fetch(url, {
